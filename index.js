@@ -13,6 +13,7 @@ app.use(express.json());
 
 // Node Server
 const server = require('http').createServer(app);
+
 module.exports.io = require('socket.io')(server);
 require('./sockets/socket');
 
@@ -33,7 +34,7 @@ app.use( '/api/mensajes', require('./routes/mensajes') );
 
 
 
-server.listen( process.env.PORT, ( err ) => {
+server.listen( process.env.PORT || 3000, ( err ) => {
 
     if ( err ) throw new Error(err);
 
