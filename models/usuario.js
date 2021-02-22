@@ -23,7 +23,17 @@ const UsuarioSchema = Schema({
         type: String,
         default: 'P'
     },
+    sintoma: {
+        type: String,
+        default: ''
+    },
+    edad: {
+        type: String,
+        default: ''
+    },
 
+}, {
+    timestamps: true
 });
 
 UsuarioSchema.method('toJSON', function(){
