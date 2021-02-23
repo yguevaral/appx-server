@@ -21,6 +21,37 @@ const getUsuarios = async (req, res = Response) => {
 
 }
 
+const usuarioAppToken = async (req, res) => {
+
+    const miId = req.uid;
+    const { token, plataforma } = req.body;
+
+    try {
+
+        console.log(miId);
+        const usuario = await Usuario.findOne( {_id: miId} );
+
+        usuario.plataforma = plataforma;
+        usuario.app_token = token;
+        await usuario.updateOne( { $set: { app_token: token, plataforma : plataforma } } );
+
+
+        return res.json({
+            ok: true,
+            usuario
+        });
+
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        });
+    }
+
+}
 module.exports = {
-    getUsuarios
+    getUsuarios,
+    usuarioAppToken
 }

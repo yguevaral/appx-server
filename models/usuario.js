@@ -31,6 +31,14 @@ const UsuarioSchema = Schema({
         type: String,
         default: ''
     },
+    plataforma: {
+        type: String,
+        default: ''
+    },
+    app_token: {
+        type: String,
+        default: ''
+    },
 
 }, {
     timestamps: true
