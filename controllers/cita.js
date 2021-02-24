@@ -144,7 +144,7 @@ const usuarioCitas = async (req, res) => {
     try {
 
         const citas = await Cita.find( {
-            $and: [{ usuario_paciente: miId, tipo: reqTipo }]
+            $and: [{ usuario_paciente: miId, tipo: reqTipo,  $or: [{estado : 'SP', estado : 'A'}]}]
         } );
 
 
