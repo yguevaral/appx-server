@@ -163,10 +163,67 @@ const usuarioCitas = async (req, res) => {
 
 }
 
+const getCita = async (req, res) => {
+
+    const miId = req.uid;
+    const reqCitaId = req.params.citaId;
+
+    try {
+
+        const cita = await Cita.find( {
+            $and: [{ _id: reqCitaId}]
+        } );
+
+        return res.json({
+            ok: true,
+            cita
+        });
+
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        });
+    }
+
+}
+
+const citasMedicoSolicitud = async (req, res) => {
+
+    const miId = req.uid;
+    const reqTipo = req.params.tipo;
+    const reqEstado = req.params.estado;
+
+    try {
+
+        const citas = await Cita.find( {
+            $and: [{ estado: reqEstado, tipo: reqTipo }],
+        } ).populate('usuario_paciente');
+
+        return res.json({
+            ok: true,
+            citas
+        });
+
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        });
+    }
+
+}
+
 module.exports = {
     crearCita,
     aceptarCitaMedico,
     citaPaciente,
     citasMedico,
-    usuarioCitas
+    usuarioCitas,
+    getCita,
+    citasMedicoSolicitud
 }
