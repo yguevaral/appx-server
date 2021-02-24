@@ -143,7 +143,7 @@ const usuarioCitas = async (req, res) => {
 
     try {
 
-        const cita = await Cita.find( {
+        const citas = await Cita.find( {
             $and: [{ usuario_paciente: miId, tipo: reqTipo }]
         } );
 
@@ -151,7 +151,7 @@ const usuarioCitas = async (req, res) => {
 
         return res.json({
             ok: true,
-            cita
+            citas
         });
 
     }
