@@ -204,7 +204,7 @@ const citasMedicoSolicitud = async (req, res) => {
 
         return res.json({
             ok: true,
-            citas
+            medicoCitas: citas
         });
 
     }
