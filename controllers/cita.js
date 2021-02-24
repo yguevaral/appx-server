@@ -1,6 +1,7 @@
 const { response } = require('express');
 const Cita = require('../models/cita');
 const Usuario = require('../models/usuario');
+const {sendNotificacionPush} = require('../helpers/notificacion_push');
 
 
 const crearCita = async (req, res) => {
@@ -19,9 +20,23 @@ const crearCita = async (req, res) => {
 
         await cita.save();
 
+        //Notificar Medicos
+        const usuariosMedico = await Usuario.find({
+            // $and: [{ tipo: 'M', medico_online: true }]
+            $and: [{ tipo: 'M'}]
+        });
+
+        const arrAppTokenUsuario = [];
+        usuariosMedico.forEach( (usuario) => {
+            arrAppTokenUsuario.push(usuario.app_token);
+        } );
+
+        sendNotificacionPush(arrAppTokenUsuario, sintomaCita, usuario.nombre, 'notiCitaMedico', cita._id);
+
         return res.json({
             ok: true,
-            cita
+            cita,
+            arrAppTokenUsuario
         });
 
     }
@@ -76,6 +91,8 @@ const citaPaciente = async (req, res) => {
             $and: [{ usuario_paciente: miId, estado: 'SP', tipo: reqTipo }]
         } );
 
+
+
         return res.json({
             ok: true,
             cita
@@ -119,9 +136,39 @@ const citasMedico = async (req, res) => {
 
 }
 
+const usuarioCitas = async (req, res) => {
+
+    const miId = req.uid;
+    const reqTipo = req.params.tipo;
+
+    try {
+
+        const cita = await Cita.find( {
+            $and: [{ usuario_paciente: miId, tipo: reqTipo }]
+        } );
+
+
+
+        return res.json({
+            ok: true,
+            cita
+        });
+
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        });
+    }
+
+}
+
 module.exports = {
     crearCita,
     aceptarCitaMedico,
     citaPaciente,
-    citasMedico
+    citasMedico,
+    usuarioCitas
 }

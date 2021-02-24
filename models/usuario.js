@@ -39,7 +39,10 @@ const UsuarioSchema = Schema({
         type: String,
         default: ''
     },
-
+    medico_online: {
+        type: Boolean,
+        default: false
+    },
 }, {
     timestamps: true
 });
