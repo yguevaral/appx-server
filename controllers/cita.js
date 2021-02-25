@@ -31,7 +31,7 @@ const crearCita = async (req, res) => {
             arrAppTokenUsuario.push(usuario.app_token);
         } );
 
-        sendNotificacionPush(arrAppTokenUsuario, sintomaCita, usuario.nombre, 'notiCitaMedico', cita._id);
+        sendNotificacionPush(arrAppTokenUsuario, 'Cita por Chat: '+sintomaCita, usuario.nombre, 'notiCitaMedico', cita._id);
 
         return res.json({
             ok: true,
@@ -63,6 +63,13 @@ const aceptarCitaMedico = async (req, res) => {
         cita.usuario_medico = miId;
 
         await cita.updateOne( { $set: { estado: "A", usuario_medico : miId } } );
+
+        const usuarioPaciente = await Usuario.findById(cita.usuario_paciente);
+
+        const arrAppTokenUsuario = [];
+        arrAppTokenUsuario.push(usuarioPaciente.app_token);
+
+        sendNotificacionPush(arrAppTokenUsuario, 'Cita por Chat: Aceptada', usuario.nombre, 'chatAceptadoMedico', cita._id, miId);
 
         return res.json({
             ok: true,
