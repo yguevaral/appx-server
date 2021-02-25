@@ -51,7 +51,38 @@ const usuarioAppToken = async (req, res) => {
     }
 
 }
+
+const setEnLinea = async (req, res) => {
+
+    const miId = req.uid;
+    const reqEnLinea = req.params.enlinea;
+
+    boolLinea = reqEnLinea == "Y" ? true : false;
+
+    try {
+        const usuario = await Usuario.findById(miId);
+
+        await usuario.updateOne( { $set: { medico_online: boolLinea} } );
+
+        return res.json({
+            ok: true
+        });
+
+    } catch (error) {
+
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        });
+
+    }
+
+
+}
+
 module.exports = {
     getUsuarios,
-    usuarioAppToken
+    usuarioAppToken,
+    setEnLinea
 }
