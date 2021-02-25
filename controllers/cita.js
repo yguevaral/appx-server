@@ -22,8 +22,8 @@ const crearCita = async (req, res) => {
 
         //Notificar Medicos
         const usuariosMedico = await Usuario.find({
-            // $and: [{ tipo: 'M', medico_online: true }]
-            $and: [{ tipo: 'M'}]
+            $and: [{ tipo: 'M', medico_online: true }]
+            // $and: [{ tipo: 'M'}]
         });
 
         const arrAppTokenUsuario = [];
