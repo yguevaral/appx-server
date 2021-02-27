@@ -35,7 +35,7 @@ const crearCita = async (req, res) => {
 
         return res.json({
             ok: true,
-            cita,
+            citas: cita,
             arrAppTokenUsuario
         });
 
