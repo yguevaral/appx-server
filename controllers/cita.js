@@ -10,6 +10,7 @@ const crearCita = async (req, res) => {
     const usuario = await Usuario.findById(miId);
 
     const sintomaCita = req.body.sintomas;
+    const tipoCita = req.body.tipo;
 
     try {
 
@@ -17,6 +18,7 @@ const crearCita = async (req, res) => {
         cita.usuario_paciente = miId;
         cita.sintomas = sintomaCita;
         cita.estado = 'SP';
+        cita.tipo = tipoCita;
 
         await cita.save();
 
@@ -31,7 +33,13 @@ const crearCita = async (req, res) => {
             arrAppTokenUsuario.push(usuario.app_token);
         } );
 
-        sendNotificacionPush(arrAppTokenUsuario, 'Cita por Chat: '+sintomaCita, usuario.nombre, 'notiCitaMedico', cita._id);
+        if( tipoCita == "C" ){
+            sendNotificacionPush(arrAppTokenUsuario, 'Cita por Chat: '+sintomaCita, usuario.nombre, 'notiCitaMedico_chat', cita._id);
+        }
+        else{
+            sendNotificacionPush(arrAppTokenUsuario, 'Cita por Video Llamada: '+sintomaCita, usuario.nombre, 'notiCitaMedico_llamada', cita._id);
+
+        }
 
         return res.json({
             ok: true,
