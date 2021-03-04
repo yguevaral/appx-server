@@ -26,8 +26,10 @@ io.on('connection', client => {
     // Escuchar del cliente un mensaje
     client.on('mensaje-personal', async ( payload ) => {
 
-        // TODO: Grabar mensaje
-        await grabarMensaje(payload);
+        console.log(payload['mensaje']);
+        if( payload['mensaje'] != 'F1n@liz@Ch@t' )
+            await grabarMensaje(payload);
+
         io.to(payload.para).emit('mensaje-personal', payload);
     });
 

@@ -5,6 +5,8 @@ const CitaRechazo = require('../models/cita_rechazo');
 const {sendNotificacionPush} = require('../helpers/notificacion_push');
 
 const { setAlertaUsuario } = require('../helpers/usuario_alertas');
+const { grabarMensaje } = require('../controllers/socket')
+
 
 
 const crearCita = async (req, res) => {
@@ -34,7 +36,7 @@ const crearCita = async (req, res) => {
         });
 
         const arrAppTokenUsuario = [];
-        usuariosMedico.forEach( (usuario) => {
+        usuariosMedico.forEach( async (usuario) => {
             arrAppTokenUsuario.push(usuario.app_token);
             setAlertaUsuario(usuario.id, strTipoNoti, true, 1);
         } );
@@ -90,6 +92,14 @@ const aceptarCitaMedico = async (req, res) => {
 
         sendNotificacionPush(arrAppTokenUsuario, 'Cita por Chat: Aceptada', usuario.nombre, 'chatAceptadoMedico', cita._id, miId);
 
+        datosMensajeInicial = {
+            de : usuarioPaciente.id,
+            para: miId,
+            mensaje: "Mis Síntomas son: "+cita.sintomas
+        }
+
+        const dddddd = await grabarMensaje(datosMensajeInicial);
+        console.log(dddddd);
         return res.json({
             ok: true,
             cita
