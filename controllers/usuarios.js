@@ -81,8 +81,38 @@ const setEnLinea = async (req, res) => {
 
 }
 
+const getAlertas = async (req, res) => {
+
+    const miId = req.uid;
+
+    try {
+        const usuario = await Usuario.findById(miId);
+
+        return res.json({
+            ok: true,
+            alerta_chat: usuario.alerta_chat,
+            alerta_videollamada: usuario.alerta_videollamada,
+            alerta_domicilio: usuario.alerta_domicilio,
+            alerta_historial: usuario.alerta_historial,
+        });
+
+    } catch (error) {
+
+        console.log(error);
+        return res.json({
+            ok: false,
+            alerta_chat: 0,
+            alerta_videollamada: 0,
+            alerta_domicilio: 0,
+            alerta_historial: 0,
+        });
+
+    }
+}
+
 module.exports = {
     getUsuarios,
     usuarioAppToken,
-    setEnLinea
+    setEnLinea,
+    getAlertas
 }

@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const { init } = require('./cita');
 
 const UsuarioSchema = Schema({
 
@@ -42,6 +43,22 @@ const UsuarioSchema = Schema({
     medico_online: {
         type: Boolean,
         default: false
+    },
+    alerta_chat: {
+        type: Number,
+        default: 0
+    },
+    alerta_videollamada: {
+        type: Number,
+        default: 0
+    },
+    alerta_domicilio: {
+        type: Number,
+        default: 0
+    },
+    alerta_historial: {
+        type: Number,
+        default: 0
     },
 }, {
     timestamps: true

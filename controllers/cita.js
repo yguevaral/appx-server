@@ -1,24 +1,29 @@
 const { response } = require('express');
 const Cita = require('../models/cita');
 const Usuario = require('../models/usuario');
+const CitaRechazo = require('../models/cita_rechazo');
 const {sendNotificacionPush} = require('../helpers/notificacion_push');
+
+const { setAlertaUsuario } = require('../helpers/usuario_alertas');
 
 
 const crearCita = async (req, res) => {
 
     const miId = req.uid;
-    const usuario = await Usuario.findById(miId);
 
     const sintomaCita = req.body.sintomas;
     const tipoCita = req.body.tipo;
 
     try {
+        const usuario = await Usuario.findById(miId);
 
         const cita = new Cita();
         cita.usuario_paciente = miId;
         cita.sintomas = sintomaCita;
         cita.estado = 'SP';
         cita.tipo = tipoCita;
+
+        const strTipoNoti = tipoCita == "C" ? "alerta_chat" : "alerta_videollamada";
 
         await cita.save();
 
@@ -31,6 +36,7 @@ const crearCita = async (req, res) => {
         const arrAppTokenUsuario = [];
         usuariosMedico.forEach( (usuario) => {
             arrAppTokenUsuario.push(usuario.app_token);
+            setAlertaUsuario(usuario.id, strTipoNoti, true, 1);
         } );
 
         if( tipoCita == "C" ){
@@ -62,17 +68,22 @@ const aceptarCitaMedico = async (req, res) => {
 
     const miId = req.uid;
     const reqCita = req.params.citaId;
-    const usuario = await Usuario.findById(miId);
-    const cita = await Cita.findById(reqCita);
 
     try {
+
+        const usuario = await Usuario.findById(miId);
+        const cita = await Cita.findById(reqCita);
 
         cita.estado = "A";
         cita.usuario_medico = miId;
 
+        const strTipoNoti = cita.tipo == "C" ? "alerta_chat" : "alerta_videollamada";
+
         await cita.updateOne( { $set: { estado: "A", usuario_medico : miId } } );
 
         const usuarioPaciente = await Usuario.findById(cita.usuario_paciente);
+        setAlertaUsuario(usuarioPaciente.id, strTipoNoti, true, 1);
+        setAlertaUsuario(miId, strTipoNoti, false, 1);
 
         const arrAppTokenUsuario = [];
         arrAppTokenUsuario.push(usuarioPaciente.app_token);
@@ -213,13 +224,121 @@ const citasMedicoSolicitud = async (req, res) => {
 
     try {
 
-        const citas = await Cita.find( {
-            $and: [{ estado: reqEstado, tipo: reqTipo }],
-        } ).populate('usuario_paciente');
+        var citas;
+        if( reqEstado == "A" ){
+
+            citas = await Cita.find( {
+                $and: [{ usuario_medico: miId, estado: reqEstado, tipo: reqTipo }],
+            } ).populate('usuario_paciente');
+
+            arrMedicoCitas = citas;
+
+        }
+
+        if( reqEstado == "SP" ){
+
+            citas = await Cita.find( {
+                $and: [{ estado: reqEstado, tipo: reqTipo }],
+            } ).populate('usuario_paciente');
+
+            const citaRechazo = await CitaRechazo.find( {
+                $and: [{ usuario_medico: miId}]
+            } );
+
+            var arrMedicoCitas = [];
+
+            for( i = 0; i < citas.length; i++ ){
+
+                var boolPush = true;
+                for( j = 0; j < citaRechazo.length; j++ ){
+
+                    if( citas[i]['_id'].toString() == citaRechazo[j]['idCita'].toString()){
+                        boolPush = false;
+                    }
+
+                }
+
+                if( boolPush ){
+                    arrMedicoCitas.push(citas[i]);
+                }
+
+            }
+
+
+
+        }
 
         return res.json({
             ok: true,
-            medicoCitas: citas
+            medicoCitas: arrMedicoCitas
+        });
+
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        });
+    }
+
+}
+
+const rechazaCitaMedico = async (req, res) => {
+
+    const miId = req.uid;
+    const reqCita = req.params.citaId;
+
+    try {
+
+        const usuario = await Usuario.findById(miId);
+        const cita = await Cita.findById(reqCita);
+
+        const citaRechazo = new CitaRechazo();
+
+        citaRechazo.idCita = reqCita;
+        citaRechazo.usuario_medico = miId;
+
+        await citaRechazo.save();
+
+        const strTipoNoti = cita.tipo == "C" ? "alerta_chat" : "alerta_videollamada";
+
+        setAlertaUsuario(miId, strTipoNoti, false, 1);
+
+
+        return res.json({
+            ok: true,
+            citaRechazo
+        });
+
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        });
+    }
+
+}
+
+const finalizaCitaMedico = async (req, res) => {
+
+    const miId = req.uid;
+    const reqCita = req.params.citaId;
+
+    try {
+
+        // const usuario = await Usuario.findById(miId);
+        const cita = await Cita.findById(reqCita);
+        const strTipoNoti = cita.tipo == "C" ? "alerta_chat" : "alerta_videollamada";
+
+        await cita.updateOne( { $set: { estado: "F"} } );
+
+        setAlertaUsuario(cita.usuario_paciente, strTipoNoti, false, 1);
+
+        return res.json({
+            ok: true
         });
 
     }
@@ -240,5 +359,7 @@ module.exports = {
     citasMedico,
     usuarioCitas,
     getCita,
-    citasMedicoSolicitud
+    citasMedicoSolicitud,
+    rechazaCitaMedico,
+    finalizaCitaMedico
 }
