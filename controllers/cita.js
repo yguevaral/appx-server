@@ -362,6 +362,30 @@ const finalizaCitaMedico = async (req, res) => {
 
 }
 
+const setPruebaPagoAffipay = async (req, res) => {
+
+    var axios = require('axios');
+
+    var config = {
+    method: 'get',
+    url: 'http://34.192.226.250:9000/oauth/token',
+    headers: {
+        'Authorization': 'Basic YXBweEBhcHB4cGVyaWVuY2UuY29tOjQzZTQ0OTQ1YmZlMmJhMTcyY2VkMTdhOWU0YjlmMzlmYjk0MjQ0NTU4ZDM1ODE4Nzg0MzQ0N2FhMjE4Y2JiN2Q=',
+        'Cookie': 'JSESSIONID=EnxEUAcBX6eEJlMFzyv8Y4QtEJRN_m6BvwIohpRf'
+    }
+    };
+
+    axios(config)
+    .then(function (response) {
+    console.log(JSON.stringify(response.data));
+    })
+    .catch(function (error) {
+    console.log(error);
+    });
+
+
+}
+
 module.exports = {
     crearCita,
     aceptarCitaMedico,
@@ -371,5 +395,6 @@ module.exports = {
     getCita,
     citasMedicoSolicitud,
     rechazaCitaMedico,
-    finalizaCitaMedico
+    finalizaCitaMedico,
+    setPruebaPagoAffipay
 }
