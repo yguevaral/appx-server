@@ -377,10 +377,19 @@ const setPruebaPagoAffipay = async (req, res) => {
 
     axios(config)
     .then(function (response) {
-    console.log(JSON.stringify(response.data));
+        console.log(JSON.stringify(response.data));
+        return res.status(500).json({
+            config: config,
+            respuesta: JSON.stringify(response.data)
+        });
+
     })
     .catch(function (error) {
-    console.log(error);
+        console.log(error);
+        return res.status(500).json({
+            config: config,
+            error: error
+        });
     });
 
 
