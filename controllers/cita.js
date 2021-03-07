@@ -90,7 +90,7 @@ const aceptarCitaMedico = async (req, res) => {
         const arrAppTokenUsuario = [];
         arrAppTokenUsuario.push(usuarioPaciente.app_token);
 
-        sendNotificacionPush(arrAppTokenUsuario, 'Cita por Chat: Aceptada', usuario.nombre, 'chatAceptadoMedico', cita._id, miId);
+        sendNotificacionPush(arrAppTokenUsuario, 'Cita por Chat: Aceptada', usuario.nombre, 'chatAceptadoMedico', cita._id, miId, cita.tipo);
 
         datosMensajeInicial = {
             de : usuarioPaciente.id,

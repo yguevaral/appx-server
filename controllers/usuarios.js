@@ -7,7 +7,8 @@ const getUsuarios = async (req, res = Response) => {
     const desde = Number( req.query.desde ) || 0;
 
     const usuarios = await Usuario
-        .find({ _id: { $ne: req.uid }, tipo : 'P' })
+        // .find({ _id: { $ne: req.uid }, tipo : 'P' })
+        .find({ _id: { $ne: req.uid } })
         .sort('-online')
         .skip(desde)
         .limit(20);
