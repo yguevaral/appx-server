@@ -367,13 +367,18 @@ const setPruebaPagoAffipay = async (req, res) => {
 
     var axios = require('axios');
 
+    var data = new FormData();
+    data.append('grant_type', 'password');
+    data.append('username', 'appx@appexperience.com');
+    data.append('password', '43e44945bfe2ba172ced17a9e4b9f39fb94244558d358187843447aa218cbb7d');
+
     var config = {
-    method: 'get',
+    method: 'post',
     url: 'http://52.22.36.22:9000/oauth/token',
     headers: {
-        'Authorization': 'Basic YXBweEBhcHB4cGVyaWVuY2UuY29tOjQzZTQ0OTQ1YmZlMmJhMTcyY2VkMTdhOWU0YjlmMzlmYjk0MjQ0NTU4ZDM1ODE4Nzg0MzQ0N2FhMjE4Y2JiN2Q=',
-        'Cookie': 'JSESSIONID=EnxEUAcBX6eEJlMFzyv8Y4QtEJRN_m6BvwIohpRf'
-    }
+        ...data.getHeaders()
+    },
+    data : data
     };
 
     axios(config)
