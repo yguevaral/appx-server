@@ -41,6 +41,10 @@ server.listen( process.env.PORT || 3000, ( err ) => {
 
     console.log('Servidor corriendo en puerto', process.env.PORT );
 
+    require('dns').lookup(require('os').hostname(), function (err, add, fam) {
+    console.log('addr: ' + add);
+    })
+
 });
 
 
