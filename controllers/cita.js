@@ -368,7 +368,7 @@ const setPruebaPagoAffipay = async (req, res) => {
 
     var config = {
     method: 'get',
-    url: 'http://52.22.36.22:9000/oauth/token',
+    url: 'http://34.192.226.250:9020/oauth/token',
     headers: {
         'Authorization': 'Basic YXBweEBhcHB4cGVyaWVuY2UuY29tOjQzZTQ0OTQ1YmZlMmJhMTcyY2VkMTdhOWU0YjlmMzlmYjk0MjQ0NTU4ZDM1ODE4Nzg0MzQ0N2FhMjE4Y2JiN2Q=',
         'Cookie': 'JSESSIONID=EnxEUAcBX6eEJlMFzyv8Y4QtEJRN_m6BvwIohpRf'
