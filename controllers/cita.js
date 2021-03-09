@@ -383,10 +383,15 @@ const setPruebaPagoAffipay = async (req, res) => {
 
     axios(config)
     .then(function (response) {
-    console.log(JSON.stringify(response.data));
+    return res.json({
+        ok: JSON.stringify(response.data)
+    });
     })
     .catch(function (error) {
     console.log(error);
+    return res.json({
+        ok: error
+    });
     });
 
 
