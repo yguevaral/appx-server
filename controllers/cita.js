@@ -366,10 +366,10 @@ const setPruebaPagoAffipay = async (req, res) => {
 
 
     var axios = require('axios');
-
+    var FormData = require('form-data');
     var data = new FormData();
     data.append('grant_type', 'password');
-    data.append('username', 'appx@appexperience.com');
+    data.append('username', 'appx@appxperience.com');
     data.append('password', '43e44945bfe2ba172ced17a9e4b9f39fb94244558d358187843447aa218cbb7d');
 
     var config = {
@@ -383,19 +383,10 @@ const setPruebaPagoAffipay = async (req, res) => {
 
     axios(config)
     .then(function (response) {
-        console.log(JSON.stringify(response.data));
-        return res.status(500).json({
-            config: config,
-            respuesta: JSON.stringify(response.data)
-        });
-
+    console.log(JSON.stringify(response.data));
     })
     .catch(function (error) {
-        console.log(error);
-        return res.status(500).json({
-            config: config,
-            error: error
-        });
+    console.log(error);
     });
 
 
