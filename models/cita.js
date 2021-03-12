@@ -25,6 +25,11 @@ const CitaSchema = Schema({
         type: String,
         required: false,
         default: "C"
+    },
+    respuesta_pago_cita: {
+        type: String,
+        required: false,
+        default: ""
     }
 }, {
     timestamps: true
