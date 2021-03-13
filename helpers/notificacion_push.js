@@ -29,6 +29,7 @@ const sendNotificacionPush = (arrtokenAppFB, strBody, strTitle, strAccion, strLl
 
     axios(config)
     .then(function (response) {
+        console.log(response);
         return JSON.stringify(response.data.success) > 0 ? true : false;
     })
     .catch(function (error) {
