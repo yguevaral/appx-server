@@ -59,6 +59,117 @@ const crearCita = async (req, res) => {
                 arrData['tc_anio'] = req.body.tc_anio;
                 arrData['tc_mes'] = req.body.tc_mes;
 
+                cita.estado = 'SP';
+                
+                await cita.updateOne({ $set: { estado: "SP"} });
+
+                //Notificar Medicos
+                const usuariosMedico = await Usuario.find({
+                    $and: [{ tipo: 'M', medico_online: true }]
+                });
+
+                const arrAppTokenUsuario = [];
+                usuariosMedico.forEach(async (usuario) => {
+                    arrAppTokenUsuario.push(usuario.app_token);
+                    setAlertaUsuario(usuario.id, strTipoNoti, true, 1);
+                });
+
+                if (tipoCita == "C") {
+                    sendNotificacionPush(arrAppTokenUsuario, 'Cita por Chat: ' + sintomaCita, usuario.nombre, 'notiCitaMedico_chat', cita._id);
+                }
+                else {
+                    sendNotificacionPush(arrAppTokenUsuario, 'Cita por Video Llamada: ' + sintomaCita, usuario.nombre, 'notiCitaMedico_llamada', cita._id);
+
+                }
+
+                return res.json({
+                    ok: true,
+                    citas: cita,
+                    arrAppTokenUsuario
+                });
+
+            }
+            else {
+                return res.status(200).json({
+                    ok: false,
+                    msg: 'Cita No disponible'
+                });
+            }
+
+
+        }
+        else {
+
+            await cita.updateOne({ $set: { estado: "ER"} });
+
+            return res.status(200).json({
+                ok: false,
+                msg: 'Cita No disponible'
+            });
+
+        }
+
+
+
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(200).json({
+            ok: false,
+            msg: 'Servicio No disponible'
+        });
+    }
+
+}
+
+const crearCita_AFIPAY = async (req, res) => {
+
+    const miId = req.uid;
+
+    const sintomaCita = req.body.sintomas;
+    const tipoCita = req.body.tipo;
+
+    try {
+        const usuario = await Usuario.findById(miId);
+        const boolPagoProduccion = false;
+        const cita = new Cita();
+        cita.usuario_paciente = miId;
+        cita.sintomas = sintomaCita;
+        cita.estado = 'C';
+        cita.tipo = tipoCita;
+
+        const strTipoNoti = tipoCita == "C" ? "alerta_chat" : "alerta_videollamada";
+
+        await cita.save();
+
+        if (cita.id != null) {
+
+            const strTokenAffiPay = await fntGetTokenAuthAffiPay(boolPagoProduccion);
+
+            if (strTokenAffiPay != "") {
+
+                var arrCobroAppx = getCobrosAppx();
+                var sinMonto = tipoCita == "C" ? arrCobroAppx['cita_chat'] : arrCobroAppx['cita_videollamada'];
+
+                arrData = [];
+                arrData['monto'] = sinMonto;
+                arrData['moneda'] = '320';
+                arrData['nombre'] = usuario.nombre;
+                arrData['apellidos'] = '';
+                arrData['email'] = usuario.email;
+                arrData['telefono'] = '';
+                arrData['ciudad'] = 'Guatemala';
+                arrData['direccion'] = 'Guatemala city';
+                arrData['codigo_postal'] = '01001';
+                arrData['estado'] = 'GTM';
+                arrData['pais'] = 'GTM';
+                arrData['ip'] = req.connection.remoteAddress;
+                arrData['tc_numero'] = req.body.tc_numero;
+                arrData['tc_cvv'] = req.body.tc_cvv;
+                arrData['tc_nombre'] = req.body.tc_nombre;
+                arrData['tc_anio'] = req.body.tc_anio;
+                arrData['tc_mes'] = req.body.tc_mes;
+
                 const arrResPagoAffiPay = await fntSetCobroTCAffiPay(boolPagoProduccion, strTokenAffiPay, arrData);
 
                 if (arrResPagoAffiPay['api']) {
