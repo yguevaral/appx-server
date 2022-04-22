@@ -33,68 +33,57 @@ const crearCita = async (req, res) => {
 
         if (cita.id != null) {
 
-            const strTokenAffiPay = await fntGetTokenAuthAffiPay(boolPagoProduccion);
+            var arrCobroAppx = getCobrosAppx();
+            var sinMonto = tipoCita == "C" ? arrCobroAppx['cita_chat'] : arrCobroAppx['cita_videollamada'];
 
-            if (strTokenAffiPay != "") {
+            arrData = [];
+            arrData['monto'] = sinMonto;
+            arrData['moneda'] = '320';
+            arrData['nombre'] = usuario.nombre;
+            arrData['apellidos'] = '';
+            arrData['email'] = usuario.email;
+            arrData['telefono'] = '';
+            arrData['ciudad'] = 'Guatemala';
+            arrData['direccion'] = 'Guatemala city';
+            arrData['codigo_postal'] = '01001';
+            arrData['estado'] = 'GTM';
+            arrData['pais'] = 'GTM';
+            arrData['ip'] = req.connection.remoteAddress;
+            arrData['tc_numero'] = req.body.tc_numero;
+            arrData['tc_cvv'] = req.body.tc_cvv;
+            arrData['tc_nombre'] = req.body.tc_nombre;
+            arrData['tc_anio'] = req.body.tc_anio;
+            arrData['tc_mes'] = req.body.tc_mes;
 
-                var arrCobroAppx = getCobrosAppx();
-                var sinMonto = tipoCita == "C" ? arrCobroAppx['cita_chat'] : arrCobroAppx['cita_videollamada'];
+            cita.estado = 'SP';
+            
+            await cita.updateOne({ $set: { estado: "SP"} });
 
-                arrData = [];
-                arrData['monto'] = sinMonto;
-                arrData['moneda'] = '320';
-                arrData['nombre'] = usuario.nombre;
-                arrData['apellidos'] = '';
-                arrData['email'] = usuario.email;
-                arrData['telefono'] = '';
-                arrData['ciudad'] = 'Guatemala';
-                arrData['direccion'] = 'Guatemala city';
-                arrData['codigo_postal'] = '01001';
-                arrData['estado'] = 'GTM';
-                arrData['pais'] = 'GTM';
-                arrData['ip'] = req.connection.remoteAddress;
-                arrData['tc_numero'] = req.body.tc_numero;
-                arrData['tc_cvv'] = req.body.tc_cvv;
-                arrData['tc_nombre'] = req.body.tc_nombre;
-                arrData['tc_anio'] = req.body.tc_anio;
-                arrData['tc_mes'] = req.body.tc_mes;
+            //Notificar Medicos
+            const usuariosMedico = await Usuario.find({
+                $and: [{ tipo: 'M', medico_online: true }]
+            });
 
-                cita.estado = 'SP';
-                
-                await cita.updateOne({ $set: { estado: "SP"} });
+            const arrAppTokenUsuario = [];
+            usuariosMedico.forEach(async (usuario) => {
+                arrAppTokenUsuario.push(usuario.app_token);
+                setAlertaUsuario(usuario.id, strTipoNoti, true, 1);
+            });
 
-                //Notificar Medicos
-                const usuariosMedico = await Usuario.find({
-                    $and: [{ tipo: 'M', medico_online: true }]
-                });
-
-                const arrAppTokenUsuario = [];
-                usuariosMedico.forEach(async (usuario) => {
-                    arrAppTokenUsuario.push(usuario.app_token);
-                    setAlertaUsuario(usuario.id, strTipoNoti, true, 1);
-                });
-
-                if (tipoCita == "C") {
-                    sendNotificacionPush(arrAppTokenUsuario, 'Cita por Chat: ' + sintomaCita, usuario.nombre, 'notiCitaMedico_chat', cita._id);
-                }
-                else {
-                    sendNotificacionPush(arrAppTokenUsuario, 'Cita por Video Llamada: ' + sintomaCita, usuario.nombre, 'notiCitaMedico_llamada', cita._id);
-
-                }
-
-                return res.json({
-                    ok: true,
-                    citas: cita,
-                    arrAppTokenUsuario
-                });
-
+            if (tipoCita == "C") {
+                sendNotificacionPush(arrAppTokenUsuario, 'Cita por Chat: ' + sintomaCita, usuario.nombre, 'notiCitaMedico_chat', cita._id);
             }
             else {
-                return res.status(200).json({
-                    ok: false,
-                    msg: 'Cita No disponible'
-                });
+                sendNotificacionPush(arrAppTokenUsuario, 'Cita por Video Llamada: ' + sintomaCita, usuario.nombre, 'notiCitaMedico_llamada', cita._id);
+
             }
+
+            return res.json({
+                ok: true,
+                citas: cita,
+                arrAppTokenUsuario
+            });
+
 
 
         }
