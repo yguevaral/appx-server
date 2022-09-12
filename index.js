@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors')
 const path = require('path');
 require('dotenv').config();
 
@@ -10,6 +11,7 @@ const app = express();
 
 // Lectura y parseo del body
 app.use(express.json());
+app.use(cors());
 
 // Node Server
 const server = require('http').createServer(app);
